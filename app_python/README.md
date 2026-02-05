@@ -9,6 +9,7 @@
 - [Running the Application](#running-the-application)
 - [API Endpoints](#api-endpoints)
 - [Configuration](#configuration)
+- [Docker](#docker)
 
 ## Overview
 
@@ -69,3 +70,53 @@ The application can be configured using environment variables:
 
 > You can set these environment variables in your terminal or use `.env` file for local development (see `.env.example`
 > file for reference).
+
+## Docker
+
+The application can be containerized using Docker for consistent deployment across environments.
+
+### Building the Image
+
+Build the Docker image from the `app_python` directory:
+
+```bash
+docker build -t <image-name>:<tag> .
+```
+
+### Running a Container
+
+Run a container from the built image with port mapping:
+
+```bash
+docker run -p <host-port>:<container-port> <image-name>:<tag>
+```
+
+To run in detached mode with environment variables:
+
+```bash
+docker run -d -p <host-port>:5000 -e DEBUG=true <image-name>:<tag>
+```
+
+### Pulling from Docker Hub
+
+Pull the pre-built image from Docker Hub:
+
+```bash
+docker pull <dockerhub-username>/<repository>:<tag>
+```
+
+Then run it:
+
+```bash
+docker run -p 5000:5000 <dockerhub-username>/<repository>:<tag>
+```
+
+### Docker Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `docker build` | Build an image from a Dockerfile |
+| `docker run` | Create and start a container |
+| `docker ps` | List running containers |
+| `docker logs` | View container logs |
+| `docker stop` | Stop a running container |
