@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from .models import APIInfoResponse
 from .service import RootServiceDep
 

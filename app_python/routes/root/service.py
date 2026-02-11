@@ -1,21 +1,23 @@
+import os
+import platform
+import socket
+import time
+from datetime import UTC, datetime
+from typing import Annotated
+
 from fastapi import Depends, Request
 from fastapi.routing import APIRoute
 
-from .models import (
-    SystemInfo,
-    ServiceInfo,
-    RuntimeInfo,
-    RequestInfo,
-    Endpoint,
-    APIInfoResponse,
-)
-import platform
-import socket
-import os
-from typing import Annotated
-import time
-from datetime import datetime, UTC
 from dependencies import AppInstanceDep
+
+from .models import (
+    APIInfoResponse,
+    Endpoint,
+    RequestInfo,
+    RuntimeInfo,
+    ServiceInfo,
+    SystemInfo,
+)
 
 
 class RootService:

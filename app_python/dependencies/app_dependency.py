@@ -1,6 +1,6 @@
-from fastapi import Depends
-from fastapi import FastAPI, Request
 from typing import Annotated
+
+from fastapi import Depends, FastAPI, Request
 
 
 def get_app_instance(request: Request) -> FastAPI:

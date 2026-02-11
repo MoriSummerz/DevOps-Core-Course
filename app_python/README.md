@@ -1,5 +1,7 @@
 # devops-info-service - FastAPI API
 
+![Python CI](https://github.com/MoriSummerz/DevOps-Core-Course/actions/workflows/python-ci.yml/badge.svg)
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -70,6 +72,64 @@ The application can be configured using environment variables:
 
 > You can set these environment variables in your terminal or use `.env` file for local development (see `.env.example`
 > file for reference).
+
+## Testing
+
+The application uses **pytest** as the testing framework.
+
+### Why pytest?
+
+- Simple and readable test syntax
+- Powerful fixture system for test setup/teardown
+- Excellent plugin ecosystem (pytest-cov, pytest-asyncio)
+- Detailed test output and failure reports
+
+### Running Tests
+
+1. Install development dependencies:
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
+2. Run all tests:
+   ```bash
+   pytest
+   ```
+
+3. Run tests with verbose output:
+   ```bash
+   pytest -v
+   ```
+
+4. Run tests with coverage report:
+   ```bash
+   pytest --cov=. --cov-report=term-missing
+   ```
+
+### Test Structure
+
+```
+tests/
+├── conftest.py      # Shared fixtures (test client)
+├── test_root.py     # Tests for GET / endpoint
+└── test_health.py   # Tests for GET /health endpoint
+```
+
+## Linting
+
+The project uses **Ruff** for linting and formatting:
+
+```bash
+# Check for linting errors
+ruff check .
+
+# Check formatting
+ruff format --check .
+
+# Auto-fix issues
+ruff check --fix .
+ruff format .
+```
 
 ## Docker
 
