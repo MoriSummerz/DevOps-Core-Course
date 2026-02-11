@@ -1,8 +1,10 @@
-from fastapi import FastAPI
-from config import settings
-from routes import root_router, health_router
 import logging
+
+from fastapi import FastAPI
+
+from config import settings
 from lifespan import lifespan
+from routes import health_router, root_router
 
 logging.basicConfig(level=logging.INFO)
 

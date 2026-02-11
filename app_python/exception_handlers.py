@@ -1,4 +1,4 @@
-from fastapi import HTTPException, FastAPI
+from fastapi import FastAPI, HTTPException
 
 
 async def handle_404_exception(_, __):

@@ -1,9 +1,11 @@
+import time
+from typing import Annotated
+
+from fastapi import Depends
+
 from dependencies import AppInstanceDep
 
 from .models import HealthCheckResponse
-import time
-from fastapi import Depends
-from typing import Annotated
 
 
 class HealthService:

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from .service import HealthServiceDep
 from .models import HealthCheckResponse
+from .service import HealthServiceDep
 
 health_router = APIRouter(prefix="/health")
 

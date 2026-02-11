@@ -1,0 +1,13 @@
+# Development and testing dependencies
+-r requirements.txt
+
+# Testing
+pytest==8.3.5
+pytest-asyncio==0.25.3
+httpx==0.28.1
+
+# Linting
+ruff==0.9.6
+
+# Coverage (optional for bonus)
+pytest-cov==6.0.0
