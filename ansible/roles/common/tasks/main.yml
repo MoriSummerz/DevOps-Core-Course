@@ -1,0 +1,38 @@
+---
+# Common role - System provisioning tasks
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  register: apt_update
+  retries: 3
+  delay: 5
+  until: apt_update is success or apt_update.msg is search("Reading package lists")
+  ignore_errors: yes
+  tags:
+    - common
+    - packages
+
+- name: Install common packages
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+    update_cache: no
+  tags:
+    - common
+    - packages
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+  tags:
+    - common
+    - timezone
+
+- name: Ensure locale is set to en_US.UTF-8
+  locale_gen:
+    name: en_US.UTF-8
+    state: present
+  tags:
+    - common
+    - locale

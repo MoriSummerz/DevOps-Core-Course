@@ -1,0 +1,14 @@
+---
+# Default variables for docker role
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
+
+docker_users:
+  - root
+
+docker_gpg_key_url: "https://download.docker.com/linux/ubuntu/gpg"
+docker_gpg_key_path: "/etc/apt/keyrings/docker.gpg"
+docker_apt_repository: "deb [arch={{ ansible_architecture }} signed-by={{ docker_gpg_key_path }}] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"

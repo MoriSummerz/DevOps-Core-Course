@@ -1,0 +1,97 @@
+---
+# Application deployment role - Deploy containerized application
+- name: Log in to Docker Hub
+  docker_login:
+    username: "{{ dockerhub_username }}"
+    password: "{{ dockerhub_password }}"
+    registry_url: https://index.docker.io/v1/
+  when: dockerhub_username is defined and dockerhub_password is defined
+  no_log: true
+  tags:
+    - app
+    - app-deploy
+
+- name: Pull Docker image
+  docker_image:
+    name: "{{ docker_image }}"
+    tag: "{{ docker_image_tag }}"
+    source: pull
+    force_source: yes
+  register: image_pull
+  tags:
+    - app
+    - app-deploy
+
+- name: Stop existing container if running
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: stopped
+  ignore_errors: yes
+  tags:
+    - app
+    - app-deploy
+
+- name: Remove old container if exists
+  docker_container:
+    name: "{{ app_container_name }}"
+    state: absent
+  ignore_errors: yes
+  tags:
+    - app
+    - app-deploy
+
+- name: Run application container
+  docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ docker_image }}:{{ docker_image_tag }}"
+    state: started
+    restart_policy: "{{ app_restart_policy }}"
+    ports:
+      - "{{ app_host_port }}:{{ app_port }}"
+    env: "{{ app_environment }}"
+    pull: no
+  register: container_start
+  notify: restart application
+  tags:
+    - app
+    - app-deploy
+
+- name: Wait for application port to be available
+  wait_for:
+    host: localhost
+    port: "{{ app_host_port }}"
+    delay: "{{ health_check_delay }}"
+    timeout: "{{ health_check_timeout }}"
+    state: started
+  tags:
+    - app
+    - app-verify
+
+- name: Verify application is responding
+  uri:
+    url: "{{ health_check_url }}"
+    method: GET
+    status_code: [200, 201, 301, 302]
+  register: health_check
+  retries: 3
+  delay: 5
+  until: health_check.status in [200, 201, 301, 302]
+  ignore_errors: yes
+  tags:
+    - app
+    - app-verify
+
+- name: Display container information
+  docker_container_info:
+    name: "{{ app_container_name }}"
+  register: container_info
+  tags:
+    - app
+    - app-verify
+
+- name: Show container status
+  debug:
+    msg: "Container {{ app_container_name }} is {{ container_info.container.State.Status }}"
+  tags:
+    - app
+    - app-verify
