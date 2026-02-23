@@ -130,7 +130,3 @@ ansible-playbook playbooks/provision.yml
 - ✅ SSH key-based authentication
 - ✅ No plaintext secrets in repository
 
----
-
-**Author:** Lab 5 - Ansible Fundamentals
-**Date:** 2026-02-23
