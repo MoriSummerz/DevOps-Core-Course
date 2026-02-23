@@ -1,0 +1,19 @@
+---
+# Default variables for app_deploy role
+app_name: devops-app
+app_port: 5000
+app_host_port: 5000
+app_container_name: "{{ app_name }}"
+app_restart_policy: unless-stopped
+
+# These will be overridden by vaulted variables in group_vars/all.yml
+docker_image: "training/webapp"  # Default fallback image
+docker_image_tag: latest
+
+# Environment variables for the application
+app_environment: {}
+
+# Health check configuration
+health_check_url: "http://localhost:{{ app_host_port }}"
+health_check_delay: 10
+health_check_timeout: 60

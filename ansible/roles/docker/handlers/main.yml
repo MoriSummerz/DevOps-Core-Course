@@ -1,0 +1,7 @@
+---
+# Docker role - Handlers
+- name: restart docker
+  service:
+    name: docker
+    state: restarted
+  listen: restart docker

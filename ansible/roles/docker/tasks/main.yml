@@ -1,0 +1,116 @@
+---
+# Docker role - Docker installation tasks
+- name: Remove old Docker packages
+  apt:
+    name:
+      - docker
+      - docker-engine
+      - docker.io
+      - containerd
+      - runc
+    state: absent
+  tags:
+    - docker
+    - docker-install
+
+- name: Install prerequisites for Docker
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: no
+  tags:
+    - docker
+    - docker-install
+
+- name: Create keyrings directory
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  tags:
+    - docker
+    - docker-install
+
+- name: Download Docker GPG key
+  get_url:
+    url: "{{ docker_gpg_key_url }}"
+    dest: "{{ docker_gpg_key_path }}"
+    mode: '0644'
+  tags:
+    - docker
+    - docker-install
+
+- name: Add Docker repository
+  apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    filename: docker
+    update_cache: no
+  tags:
+    - docker
+    - docker-install
+
+- name: Update apt cache for Docker repo
+  apt:
+    update_cache: yes
+    cache_valid_time: 0
+  ignore_errors: yes
+  tags:
+    - docker
+    - docker-install
+
+- name: Install Docker packages
+  apt:
+    name: "{{ docker_packages }}"
+    state: present
+    update_cache: no
+  notify: restart docker
+  tags:
+    - docker
+    - docker-install
+
+- name: Ensure Docker service is running and enabled
+  service:
+    name: docker
+    state: started
+    enabled: yes
+  tags:
+    - docker
+    - docker-service
+
+- name: Add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: yes
+  loop: "{{ docker_users }}"
+  tags:
+    - docker
+    - docker-users
+
+- name: Install python3-docker for Ansible docker modules
+  apt:
+    name: python3-docker
+    state: present
+  tags:
+    - docker
+    - docker-python
+
+- name: Verify Docker installation
+  command: docker --version
+  register: docker_version
+  changed_when: false
+  tags:
+    - docker
+    - docker-verify
+
+- name: Display Docker version
+  debug:
+    var: docker_version.stdout
+  tags:
+    - docker
+    - docker-verify
