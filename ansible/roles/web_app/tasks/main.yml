@@ -1,0 +1,82 @@
+---
+# Web app role - Main tasks
+# Uses Docker Compose for deployment with blocks for error handling
+
+# Wipe logic runs first (when explicitly requested)
+- name: Include wipe tasks
+  include_tasks: wipe.yml
+  tags:
+    - web_app_wipe
+
+# Deploy application with Docker Compose
+- name: Deploy application with Docker Compose
+  block:
+    - name: Create application directory
+      file:
+        path: "{{ compose_project_dir }}"
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Template docker-compose file
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ compose_project_dir }}/docker-compose.yml"
+        mode: '0644'
+      register: compose_template
+
+    - name: Deploy with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ compose_project_dir }}"
+        state: present
+        pull: never
+      register: compose_output
+
+    - name: Display deployment result
+      debug:
+        msg: "Docker Compose deployment completed for {{ app_name }}"
+
+  rescue:
+    - name: Log deployment failure
+      debug:
+        msg: "Deployment of {{ app_name }} failed! Attempting recovery..."
+
+    - name: Try to bring up containers after failure
+      command: docker compose -f {{ compose_project_dir }}/docker-compose.yml up -d --pull never
+      register: compose_recovery
+      ignore_errors: yes
+
+  tags:
+    - app_deploy
+    - compose
+
+# Verify deployment
+- name: Verify application deployment
+  block:
+    - name: Wait for application port to be available
+      wait_for:
+        host: localhost
+        port: "{{ app_port }}"
+        delay: "{{ health_check_delay }}"
+        timeout: "{{ health_check_timeout }}"
+        state: started
+
+    - name: Verify application is responding
+      uri:
+        url: "{{ health_check_url }}"
+        method: GET
+        status_code: [200, 201, 301, 302]
+      register: health_check
+      retries: 3
+      delay: 5
+      until: health_check.status in [200, 201, 301, 302]
+      ignore_errors: yes
+
+    - name: Show application health status
+      debug:
+        msg: "Application {{ app_name }} is running on port {{ app_port }} - HTTP {{ health_check.status | default('unknown') }}"
+
+  tags:
+    - app_deploy
+    - app_verify

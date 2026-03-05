@@ -1,5 +1,11 @@
 # Lab 6 — Advanced Ansible & CI/CD
 
+**Name:** Nikita Timofeev
+**Date:** 2026-03-05
+**Lab Points:** 10
+
+---
+
 ![difficulty](https://img.shields.io/badge/difficulty-intermediate-yellow)
 ![topic](https://img.shields.io/badge/topic-Ansible%20%26%20CI%2FCD-blue)
 ![points](https://img.shields.io/badge/points-10%2B2.5-orange)
