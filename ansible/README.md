@@ -1,5 +1,7 @@
 # Ansible Infrastructure Automation
 
+[![Ansible Deployment](https://github.com/MoriSummerz/DevOps-Core-Course/actions/workflows/ansible-deploy.yml/badge.svg)](https://github.com/MoriSummerz/DevOps-Core-Course/actions/workflows/ansible-deploy.yml)
+
 This directory contains Ansible roles and playbooks for automated infrastructure provisioning and application deployment.
 
 ## Quick Start
@@ -31,7 +33,7 @@ ansible/
 └── roles/                  # Ansible roles
     ├── common/             # Essential packages and system config
     ├── docker/             # Docker installation
-    └── app_deploy/         # Container deployment
+    └── web_app/         # Container deployment
 ```
 
 ## Roles
@@ -47,7 +49,7 @@ ansible/
 - Adds users to docker group
 - Installs python3-docker for Ansible
 
-### app_deploy
+### web_app
 - Logs into Docker Hub (if credentials provided)
 - Pulls Docker images
 - Manages container lifecycle

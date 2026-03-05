@@ -1,8 +1,0 @@
----
-# Application deployment role - Handlers
-- name: restart application
-  docker_container:
-    name: "{{ app_container_name }}"
-    state: started
-    restart: yes
-  listen: restart application
