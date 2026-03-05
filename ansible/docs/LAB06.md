@@ -1,9 +1,5 @@
 # Lab 6: Advanced Ansible & CI/CD - Submission
 
-**Name:** MoriSummerz
-**Date:** 2026-03-05
-**Lab Points:** 10
-
 ---
 
 ## Task 1: Blocks & Tags (2 pts)
@@ -210,10 +206,10 @@ version: '3.8'
 
 services:
   devops-app:
-    image: nginx:latest
+    image: morisummerz/devops-info-service:latest
     container_name: devops-app
     ports:
-      - "5000:80"
+      - "5000:5000"
     restart: unless-stopped
     networks:
       - app_network
@@ -295,15 +291,14 @@ oracle-vm                  : ok=24   changed=1   ← Only log timestamp changed
 
 ```
 $ docker ps --filter name=devops-app
-CONTAINER ID   IMAGE          COMMAND                  CREATED         STATUS         PORTS                    NAMES
-6176a8c4d31d   nginx:latest   "/docker-entrypoint.…"   2 minutes ago   Up 2 minutes   0.0.0.0:5000->80/tcp     devops-app
+CONTAINER ID   IMAGE                                    COMMAND          CREATED         STATUS         PORTS                    NAMES
+334c8d1c6629   morisummerz/devops-info-service:latest   "python app.py"  2 minutes ago   Up 2 minutes   0.0.0.0:5000->5000/tcp   devops-app
 
 $ curl http://130.61.249.187:5000/
-<!DOCTYPE html>
-<html>
-<head><title>Welcome to nginx!</title></head>
-<body><h1>Welcome to nginx!</h1>...</body>
-</html>
+{"service":{"name":"devops-info-service","version":"1.0.0","description":"DevOps course info service","framework":"FastAPI"},
+"system":{"hostname":"334c8d1c6629","platform":"Linux","architecture":"aarch64","cpu_count":4,"python_version":"3.12.13"},
+"runtime":{"uptime_seconds":19,"current_time":"2026-03-05T18:50:42Z","timezone":"UTC"},
+"endpoints":[{"path":"/","method":"GET"},{"path":"/health/","method":"GET"}]}
 ```
 
 ### Before/After Comparison
@@ -709,8 +704,8 @@ oracle-vm: ok=24   changed=1    ← Only log timestamp
 ```
 $ curl -I http://130.61.249.187:5000/
 HTTP/1.1 200 OK
-Server: nginx/1.29.5
-Content-Type: text/html
+Content-Type: application/json
+Server: uvicorn
 ```
 
 ---
@@ -741,7 +736,13 @@ Content-Type: text/html
 
 **Solution:** Added `ignore_errors: yes` to the Docker Compose stop task in wipe.yml. The `file: state=absent` module is naturally idempotent and doesn't fail if the path doesn't exist.
 
-### 5. Version Obsolescence Warning
+### 5. ARM64 Architecture Compatibility
+
+**Problem:** The Docker Hub image `morisummerz/devops-info-service:latest` was built for amd64 only, but the Oracle Cloud VM runs on ARM64 (aarch64). Docker Compose failed with `no matching manifest for linux/arm64/v8`.
+
+**Solution:** Built the Docker image locally on the ARM64 VM from the Python application source (`app_python/`). Set `pull: never` in the `docker_compose_v2` module to prevent Ansible from trying to pull from Docker Hub, which would fail due to the architecture mismatch. The recovery command in the rescue block also uses `--pull never`.
+
+### 6. Version Obsolescence Warning
 
 **Problem:** Docker Compose warns `version` key is obsolete in newer Compose spec versions.
 

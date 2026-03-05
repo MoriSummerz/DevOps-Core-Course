@@ -1,10 +1,10 @@
 ---
 # Default variables for web_app role
 app_name: devops-app
-docker_image: nginx
+docker_image: morisummerz/devops-info-service
 docker_tag: latest
 app_port: 5000
-app_internal_port: 80
+app_internal_port: 5000
 app_restart_policy: unless-stopped
 
 # Docker Compose configuration
