@@ -1,0 +1,34 @@
+---
+- name: Deploy monitoring stack with Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ monitoring_dir }}"
+    state: present
+  register: compose_output
+
+- name: Wait for Loki to be ready
+  uri:
+    url: "http://localhost:{{ loki_port }}/ready"
+    method: GET
+    status_code: 200
+  register: loki_ready
+  retries: 12
+  delay: 5
+  until: loki_ready.status == 200
+
+- name: Wait for Grafana to be ready
+  uri:
+    url: "http://localhost:{{ grafana_port }}/api/health"
+    method: GET
+    status_code: 200
+  register: grafana_ready
+  retries: 12
+  delay: 5
+  until: grafana_ready.status == 200
+
+- name: Display monitoring stack status
+  debug:
+    msg: |
+      Monitoring stack deployed:
+        - Loki:     http://localhost:{{ loki_port }}
+        - Grafana:  http://localhost:{{ grafana_port }}
+        - Promtail: http://localhost:{{ promtail_port }}

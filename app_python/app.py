@@ -1,12 +1,12 @@
-import logging
-
 from fastapi import FastAPI
 
 from config import settings
 from lifespan import lifespan
+from log_config import setup_json_logging
+from middleware import RequestLoggingMiddleware
 from routes import health_router, root_router
 
-logging.basicConfig(level=logging.INFO)
+setup_json_logging()
 
 app = FastAPI(
     title="devops-info-service",
@@ -15,6 +15,9 @@ app = FastAPI(
     debug=settings.debug,
     lifespan=lifespan,
 )
+
+app.add_middleware(RequestLoggingMiddleware)
+
 for router in [root_router, health_router]:
     app.include_router(router)
 

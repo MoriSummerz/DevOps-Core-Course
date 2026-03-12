@@ -1,0 +1,6 @@
+---
+- name: Include setup tasks
+  include_tasks: setup.yml
+
+- name: Include deploy tasks
+  include_tasks: deploy.yml
