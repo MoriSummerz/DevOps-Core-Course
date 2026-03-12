@@ -1,0 +1,29 @@
+---
+# Monitoring stack variables
+monitoring_dir: /opt/monitoring
+
+# Service versions
+loki_version: "3.0.0"
+promtail_version: "3.0.0"
+grafana_version: "12.3.1"
+
+# Ports
+loki_port: 3100
+grafana_port: 3000
+promtail_port: 9080
+
+# Loki configuration
+loki_retention_period: "168h"
+loki_schema_version: "v13"
+
+# Grafana credentials
+grafana_admin_user: admin
+grafana_admin_password: devops2024secure
+
+# Resource limits
+loki_memory_limit: "1G"
+loki_cpu_limit: "1.0"
+grafana_memory_limit: "512M"
+grafana_cpu_limit: "1.0"
+promtail_memory_limit: "512M"
+promtail_cpu_limit: "0.5"

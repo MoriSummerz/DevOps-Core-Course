@@ -10,3 +10,6 @@ test
 terraform.tfvars
 *.tfvars
 sa.json
+
+# Monitoring
+monitoring/.env
