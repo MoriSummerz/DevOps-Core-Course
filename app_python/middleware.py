@@ -37,7 +37,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             duration = time.time() - start_time
             http_requests_in_progress.dec()
             http_requests_total.labels(method=method, endpoint=path, status="500").inc()
-            http_request_duration_seconds.labels(method=method, endpoint=path).observe(duration)
+            http_request_duration_seconds.labels(method=method, endpoint=path).observe(
+                duration
+            )
             logger.error(
                 "Request failed",
                 extra={
@@ -54,7 +56,9 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         http_requests_in_progress.dec()
         status = str(response.status_code)
         http_requests_total.labels(method=method, endpoint=path, status=status).inc()
-        http_request_duration_seconds.labels(method=method, endpoint=path).observe(duration)
+        http_request_duration_seconds.labels(method=method, endpoint=path).observe(
+            duration
+        )
 
         logger.info(
             "Request processed",
