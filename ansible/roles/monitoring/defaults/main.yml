@@ -6,15 +6,36 @@ monitoring_dir: /opt/monitoring
 loki_version: "3.0.0"
 promtail_version: "3.0.0"
 grafana_version: "12.3.1"
+prometheus_version: "3.9.0"
 
 # Ports
 loki_port: 3100
 grafana_port: 3000
 promtail_port: 9080
+prometheus_port: 9090
 
 # Loki configuration
 loki_retention_period: "168h"
 loki_schema_version: "v13"
+
+# Prometheus configuration
+prometheus_retention_days: 15
+prometheus_retention_size: "10GB"
+prometheus_scrape_interval: "15s"
+
+# Scrape targets
+prometheus_targets:
+  - job: "prometheus"
+    targets: ["localhost:9090"]
+  - job: "app"
+    targets: ["app-python:5000"]
+    path: "/metrics"
+  - job: "loki"
+    targets: ["loki:3100"]
+    path: "/metrics"
+  - job: "grafana"
+    targets: ["grafana:3000"]
+    path: "/metrics"
 
 # Grafana credentials
 grafana_admin_user: admin
@@ -27,3 +48,5 @@ grafana_memory_limit: "512M"
 grafana_cpu_limit: "1.0"
 promtail_memory_limit: "512M"
 promtail_cpu_limit: "0.5"
+prometheus_memory_limit: "1G"
+prometheus_cpu_limit: "1.0"

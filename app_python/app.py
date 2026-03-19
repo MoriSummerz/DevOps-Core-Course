@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.responses import Response
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from config import settings
 from lifespan import lifespan
@@ -20,6 +22,12 @@ app.add_middleware(RequestLoggingMiddleware)
 
 for router in [root_router, health_router]:
     app.include_router(router)
+
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics():
+    """Prometheus metrics endpoint."""
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ from fastapi import Depends, Request
 from fastapi.routing import APIRoute
 
 from dependencies import AppInstanceDep
+from metrics import endpoint_calls, system_info_duration
 
 from .models import (
     APIInfoResponse,
@@ -75,9 +76,12 @@ class RootService:
         return endpoints
 
     async def get_api_info(self) -> APIInfoResponse:
+        endpoint_calls.labels(endpoint="/").inc()
+        with system_info_duration.time():
+            system = await self._get_system_info()
         return APIInfoResponse(
             service=await self._get_service_info(),
-            system=await self._get_system_info(),
+            system=system,
             runtime=await self._get_runtime_info(),
             request=await self._get_request_info(),
             endpoints=await self._get_endoints_info(),

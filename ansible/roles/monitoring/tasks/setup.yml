@@ -8,7 +8,9 @@
     - "{{ monitoring_dir }}"
     - "{{ monitoring_dir }}/loki"
     - "{{ monitoring_dir }}/promtail"
+    - "{{ monitoring_dir }}/prometheus"
     - "{{ monitoring_dir }}/grafana/provisioning/datasources"
+    - "{{ monitoring_dir }}/grafana/provisioning/dashboards"
 
 - name: Template Loki configuration
   template:
@@ -24,10 +26,35 @@
     mode: "0644"
   register: promtail_config
 
-- name: Template Grafana datasource provisioning
+- name: Template Prometheus configuration
+  template:
+    src: prometheus.yml.j2
+    dest: "{{ monitoring_dir }}/prometheus/prometheus.yml"
+    mode: "0644"
+  register: prometheus_config
+
+- name: Template Grafana Loki datasource
   template:
     src: grafana-datasource.yml.j2
     dest: "{{ monitoring_dir }}/grafana/provisioning/datasources/loki.yml"
+    mode: "0644"
+
+- name: Template Grafana Prometheus datasource
+  template:
+    src: grafana-prometheus-datasource.yml.j2
+    dest: "{{ monitoring_dir }}/grafana/provisioning/datasources/prometheus.yml"
+    mode: "0644"
+
+- name: Copy Grafana dashboard provisioning config
+  copy:
+    src: grafana-dashboards.yml
+    dest: "{{ monitoring_dir }}/grafana/provisioning/dashboards/dashboards.yml"
+    mode: "0644"
+
+- name: Copy Grafana application dashboard
+  copy:
+    src: grafana-app-dashboard.json
+    dest: "{{ monitoring_dir }}/grafana/provisioning/dashboards/app-metrics.json"
     mode: "0644"
 
 - name: Template Docker Compose file
