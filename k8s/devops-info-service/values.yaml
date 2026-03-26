@@ -1,0 +1,75 @@
+# Replica count for the Deployment
+replicaCount: 3
+
+# Container image configuration
+image:
+  repository: morisummerz/devops-info-service
+  tag: "latest"
+  pullPolicy: Never
+
+# Override chart name or fullname
+nameOverride: ""
+fullnameOverride: ""
+
+# Container port the application listens on
+containerPort: 5000
+
+# Service configuration
+service:
+  type: NodePort
+  port: 80
+  targetPort: 5000
+  nodePort: 30080
+
+# Rolling update strategy
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 0
+
+# Resource requests and limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Liveness probe — restarts container if unhealthy
+livenessProbe:
+  httpGet:
+    path: /health/
+    port: 5000
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Readiness probe — removes pod from service if not ready
+readinessProbe:
+  httpGet:
+    path: /health/
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Environment variables passed to the container
+env:
+  - name: HOST
+    value: "0.0.0.0"
+  - name: PORT
+    value: "5000"
+  - name: DEBUG
+    value: "false"
+
+# Pod labels and annotations
+podAnnotations: {}
+podLabels: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

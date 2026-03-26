@@ -1,0 +1,22 @@
+DevOps Info Service has been deployed!
+
+Release: {{ .Release.Name }}
+Chart:   {{ .Chart.Name }}-{{ .Chart.Version }}
+App:     {{ .Chart.AppVersion }}
+
+{{- if contains "NodePort" .Values.service.type }}
+Access the application via NodePort:
+  minikube service {{ include "devops-info-service.fullname" . }} --url
+{{- else if contains "ClusterIP" .Values.service.type }}
+Access the application via port-forward:
+  kubectl port-forward svc/{{ include "devops-info-service.fullname" . }} 8080:{{ .Values.service.port }}
+  Then visit: http://127.0.0.1:8080
+{{- else if contains "LoadBalancer" .Values.service.type }}
+Access the application via LoadBalancer:
+  kubectl get svc {{ include "devops-info-service.fullname" . }} -w
+{{- end }}
+
+Endpoints:
+  /         - Service information
+  /health/  - Health check
+  /metrics  - Prometheus metrics
