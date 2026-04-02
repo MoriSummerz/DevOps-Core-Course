@@ -26,8 +26,15 @@ spec:
             - |
               echo "=== Post-install smoke test started ==="
               echo "Waiting for service to be ready..."
-              sleep 10
+              sleep 5
               echo "Testing health endpoint..."
-              wget -q -O- http://{{ include "devops-info-service.fullname" . }}:{{ .Values.service.port }}/health/ || true
-              echo ""
+              for i in 1 2 3; do
+                if wget -q -O- http://{{ include "devops-info-service.fullname" . }}:{{ .Values.service.port }}/health/ 2>/dev/null; then
+                  echo ""
+                  echo "Health check passed on attempt $i"
+                  break
+                fi
+                echo "Attempt $i failed, retrying in 5s..."
+                sleep 5
+              done
               echo "Post-install smoke test completed"
