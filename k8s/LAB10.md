@@ -86,14 +86,12 @@ Values are structured hierarchically by concern:
 **Development** (`values-dev.yaml`):
 - 1 replica (minimal resource usage)
 - Relaxed resource limits (50m/64Mi → 100m/128Mi)
-- DEBUG mode enabled
 - Longer failure thresholds (5 attempts)
 - NodePort service for direct access
 
 **Production** (`values-prod.yaml`):
 - 5 replicas (high availability)
 - Higher resources (200m/256Mi → 500m/512Mi)
-- DEBUG disabled
 - Longer initial delays for probes (30s liveness, 10s readiness)
 - LoadBalancer service type
 - More aggressive rolling update (maxSurge: 2, maxUnavailable: 1)
@@ -143,12 +141,6 @@ helm install devops-custom k8s/devops-info-service --set replicaCount=10 --set s
 ### Hook Execution Evidence
 
 ```
-$ kubectl get events --sort-by=.lastTimestamp | grep -E "pre-install|post-install"
-Normal  SuccessfulCreate  job/devops-app-devops-info-service-pre-install   Created pod
-Normal  Completed         job/devops-app-devops-info-service-pre-install   Job completed
-Normal  SuccessfulCreate  job/devops-app-devops-info-service-post-install  Created pod
-Normal  Completed         job/devops-app-devops-info-service-post-install  Job completed
-
 $ kubectl get jobs
 No resources found in default namespace.
 # ↑ Jobs deleted per hook-succeeded policy
@@ -161,8 +153,8 @@ No resources found in default namespace.
 ```
 $ helm list
 NAME         	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART                       	APP VERSION
-devops-app   	default  	1       	2026-03-24 20:11:26.855236 +0300 MSK	deployed	devops-info-service-0.1.0   	1.0.0
-devops-app-v2	default  	1       	2026-03-24 20:13:54.342729 +0300 MSK	deployed	devops-info-service-v2-0.1.0	1.0.0
+devops-app-v2	default  	1       	2026-04-02 13:12:34.028858 +0300 MSK	deployed	devops-info-service-v2-0.1.0	1.0.0
+devops-dev   	default  	2       	2026-04-02 13:11:31.570345 +0300 MSK	deployed	devops-info-service-0.1.0   	1.0.0
 ```
 
 ### kubectl get all
@@ -170,38 +162,46 @@ devops-app-v2	default  	1       	2026-03-24 20:13:54.342729 +0300 MSK	deployed	d
 ```
 $ kubectl get all
 NAME                                                       READY   STATUS    RESTARTS   AGE
-pod/devops-app-devops-info-service-779f7fd898-59sl9        1/1     Running   0          2m38s
-pod/devops-app-v2-devops-info-service-v2-69df874b9-5g4gb   1/1     Running   0          19s
-pod/devops-app-v2-devops-info-service-v2-69df874b9-tjs76   1/1     Running   0          19s
+pod/devops-app-v2-devops-info-service-v2-69df874b9-c9gg8   1/1     Running   0          13s
+pod/devops-app-v2-devops-info-service-v2-69df874b9-h7xbd   1/1     Running   0          13s
+pod/devops-dev-devops-info-service-cf7f857d9-5rsqp         1/1     Running   0          55s
+pod/devops-dev-devops-info-service-cf7f857d9-7dcpk         1/1     Running   0          55s
+pod/devops-dev-devops-info-service-cf7f857d9-9j42r         1/1     Running   0          68s
+pod/devops-dev-devops-info-service-cf7f857d9-cxtwh         1/1     Running   0          68s
+pod/devops-dev-devops-info-service-cf7f857d9-nq6zh         1/1     Running   0          68s
 
-NAME                                           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
-service/devops-app-devops-info-service         NodePort    10.97.200.240    <none>        80:30080/TCP   2m38s
-service/devops-app-v2-devops-info-service-v2   ClusterIP   10.102.247.188   <none>        80/TCP         19s
+NAME                                           TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+service/devops-app-v2-devops-info-service-v2   ClusterIP      10.109.163.124   <none>        80/TCP         13s
+service/devops-dev-devops-info-service         LoadBalancer   10.101.151.54    <pending>     80:30080/TCP   117s
+service/kubernetes                             ClusterIP      10.96.0.1        <none>        443/TCP        5m23s
 
 NAME                                                   READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/devops-app-devops-info-service         1/1     1            1           2m38s
-deployment.apps/devops-app-v2-devops-info-service-v2   2/2     2            2           19s
+deployment.apps/devops-app-v2-devops-info-service-v2   2/2     2            2           13s
+deployment.apps/devops-dev-devops-info-service         5/5     5            5           117s
 ```
 
 ### Dev vs Prod Deployment Comparison
 
-**Dev deployment (1 replica):**
+**Dev deployment (1 replica, NodePort):**
 ```
 $ helm install devops-dev k8s/devops-info-service -f k8s/devops-info-service/values-dev.yaml
 $ kubectl get deployment devops-dev-devops-info-service
-NAME                             READY   UP-TO-DATE   AVAILABLE
-devops-dev-devops-info-service   1/1     1            1
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+devops-dev-devops-info-service   1/1     1            1           34s
 ```
 
-**Upgraded to Prod values (5 replicas):**
+**Upgraded to Prod values (5 replicas, LoadBalancer):**
 ```
 $ helm upgrade devops-dev k8s/devops-info-service -f k8s/devops-info-service/values-prod.yaml
 $ kubectl get deployment devops-dev-devops-info-service
-NAME                             READY   UP-TO-DATE   AVAILABLE
-devops-dev-devops-info-service   5/5     5            5
-```
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+devops-dev-devops-info-service   5/5     5            5           79s
 
-<!-- TODO: Add screenshots of Helm deployments in Kubernetes dashboard if needed -->
+$ helm history devops-dev
+REVISION	UPDATED                 	STATUS    	CHART                    	APP VERSION	DESCRIPTION
+1       	Thu Apr  2 13:10:41 2026	superseded	devops-info-service-0.1.0	1.0.0      	Install complete
+2       	Thu Apr  2 13:11:31 2026	deployed  	devops-info-service-0.1.0	1.0.0      	Upgrade complete
+```
 
 ## Operations
 
@@ -299,7 +299,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: test-release-devops-info-service
-  labels: ...
+  labels:
+    helm.sh/chart: devops-info-service-0.1.0
+    app.kubernetes.io/name: devops-info-service
+    app.kubernetes.io/instance: test-release
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: Helm
 spec:
   replicas: 3
   strategy:
@@ -344,19 +349,27 @@ $ helm install --dry-run --debug test-release k8s/devops-info-service
 ### Application Verification
 
 ```
-$ curl -s http://127.0.0.1:56902/health/
-{
-    "status": "healthy",
-    "timestamp": "2026-03-24T17:11:40.123456Z",
-    "uptime_seconds": 14
-}
+$ curl -s http://127.0.0.1:8080/health/
+{"status":"healthy","timestamp":"2026-04-02T10:12:55.816742Z","uptime_seconds":74}
 
-$ curl -s http://127.0.0.1:56902/ | jq .service
+$ curl -s http://127.0.0.1:8080/ | python3 -m json.tool
 {
-    "name": "devops-info-service",
-    "version": "1.0.0",
-    "description": "DevOps course info service",
-    "framework": "FastAPI"
+    "service": {
+        "name": "devops-info-service",
+        "version": "1.0.0",
+        "description": "DevOps course info service",
+        "framework": "FastAPI"
+    },
+    "system": {
+        "hostname": "devops-dev-devops-info-service-cf7f857d9-9j42r",
+        "platform": "Linux",
+        ...
+    },
+    "endpoints": [
+        {"path": "/", "method": "GET", "description": "Get API information"},
+        {"path": "/health/", "method": "GET", "description": "Health check endpoint"},
+        {"path": "/metrics", "method": "GET", "description": "Prometheus metrics endpoint."}
+    ]
 }
 ```
 
@@ -416,8 +429,14 @@ Deleting outdated charts
 
 $ helm install devops-app-v2 k8s/devops-info-service-v2
 NAME: devops-app-v2
+LAST DEPLOYED: Thu Apr  2 13:12:34 2026
 STATUS: deployed
 CHART: devops-info-service-v2-0.1.0
+
+$ helm list
+NAME         	NAMESPACE	REVISION	UPDATED                             	STATUS  	CHART                       	APP VERSION
+devops-app-v2	default  	1       	2026-04-02 13:12:34.028858 +0300 MSK	deployed	devops-info-service-v2-0.1.0	1.0.0
+devops-dev   	default  	2       	2026-04-02 13:11:31.570345 +0300 MSK	deployed	devops-info-service-0.1.0   	1.0.0
 ```
 
 Both charts deploy successfully with consistent labels generated by the shared library.
