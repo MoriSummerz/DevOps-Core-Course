@@ -66,6 +66,25 @@ env:
   - name: DEBUG
     value: "false"
 
+# Secret values (use placeholder defaults — override at deploy time)
+secrets:
+  DB_USERNAME: "changeme"
+  DB_PASSWORD: "changeme"
+  API_KEY: "changeme"
+
+# Vault Agent Injector configuration
+vault:
+  enabled: false
+  role: "devops-app"
+  secretPath: "secret/data/devops/config"
+  template: ""
+  command: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  name: ""
+
 # Pod labels and annotations
 podAnnotations: {}
 podLabels: {}
