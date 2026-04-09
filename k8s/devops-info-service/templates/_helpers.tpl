@@ -49,3 +49,30 @@ Selector labels
 app.kubernetes.io/name: {{ include "devops-info-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "devops-info-service.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "devops-info-service.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common environment variables — DRY helper for reuse across deployments
+*/}}
+{{- define "devops-info-service.envVars" -}}
+- name: APP_NAME
+  value: {{ include "devops-info-service.fullname" . }}
+- name: APP_VERSION
+  value: {{ .Chart.AppVersion | quote }}
+- name: RELEASE_NAME
+  value: {{ .Release.Name }}
+{{- range .Values.env }}
+- name: {{ .name }}
+  value: {{ .value | quote }}
+{{- end }}
+{{- end }}

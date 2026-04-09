@@ -1,0 +1,19 @@
+# Vault integration values for Lab 11
+replicaCount: 1
+
+secrets:
+  DB_USERNAME: "admin"
+  DB_PASSWORD: "S3cur3P@ssw0rd"
+  API_KEY: "my-secret-api-key-123"
+
+vault:
+  enabled: true
+  role: "devops-app"
+  secretPath: "secret/data/devops/config"
+  template: |
+    {{- with secret "secret/data/devops/config" -}}
+    DB_USERNAME={{ .Data.data.db_username }}
+    DB_PASSWORD={{ .Data.data.db_password }}
+    API_KEY={{ .Data.data.api_key }}
+    {{- end -}}
+  command: "/bin/sh -c 'kill -HUP $(pidof python) 2>/dev/null || true'"
