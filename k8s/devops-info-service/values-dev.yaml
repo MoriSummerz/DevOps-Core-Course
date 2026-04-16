@@ -44,3 +44,12 @@ env:
     value: "5000"
   - name: DEBUG
     value: "false"
+  - name: VISITS_FILE
+    value: "/data/visits"
+
+persistence:
+  enabled: true
+  mountPath: /data
+  size: 100Mi
+  accessMode: ReadWriteOnce
+  storageClass: ""

@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 5000
     debug: bool = False
+    visits_file: str = "/data/visits"
 
 
 settings = Settings.model_validate({})

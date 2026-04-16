@@ -1,5 +1,7 @@
 # Replica count for the Deployment
-replicaCount: 3
+# NOTE: When persistence is enabled with ReadWriteOnce PVC, keep replicaCount=1
+# (multiple pods cannot share a RWO volume on most storage classes).
+replicaCount: 1
 
 # Container image configuration
 image:
@@ -65,6 +67,28 @@ env:
     value: "5000"
   - name: DEBUG
     value: "false"
+  - name: VISITS_FILE
+    value: "/data/visits"
+
+# Key-value pairs exposed to the container via a ConfigMap + envFrom
+configMapEnv:
+  APP_ENV: "dev"
+  LOG_LEVEL: "INFO"
+  CONFIG_FILE: "/config/config.json"
+
+# ConfigMap file mount (config.json sourced from files/config.json)
+configFile:
+  enabled: true
+  mountPath: /config
+
+# Persistent volume for the visits counter
+persistence:
+  enabled: true
+  mountPath: /data
+  size: 100Mi
+  accessMode: ReadWriteOnce
+  # Use the default storage class when empty (Minikube provisions hostPath automatically)
+  storageClass: ""
 
 # Secret values (use placeholder defaults — override at deploy time)
 secrets:

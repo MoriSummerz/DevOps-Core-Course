@@ -59,8 +59,30 @@ The API will be accessible at `http://${HOST}:${PORT}`.
 
 ## API Endpoints
 
-- `GET /`: Service and system information.
+- `GET /`: Service and system information. **Increments the visits counter** on every call.
 - `GET /health`: Returns the health status of the API.
+- `GET /visits/`: Returns the current visits count (does not increment).
+
+### Visits counter persistence
+
+The counter is stored in a plain text file at `VISITS_FILE` (default
+`/data/visits`). Writes are atomic (tmp file + `rename`) and serialized with a
+`threading.Lock`, so the value survives container restarts as long as the file
+path is backed by a persistent volume.
+
+For Docker Compose, `./data` is bind-mounted to `/data`:
+
+```bash
+docker compose up -d --build
+curl -s http://localhost:8080/visits/          # {"visits":0}
+curl -s http://localhost:8080/ -o /dev/null    # bumps the counter
+cat data/visits                                 # 1
+docker compose restart
+curl -s http://localhost:8080/visits/          # {"visits":1}  — preserved
+```
+
+> Port 5000 is used by macOS AirPlay Receiver; the compose file maps host port
+> `8080` → container `5000` to avoid the conflict.
 
 ## Configuration
 
@@ -69,6 +91,7 @@ The application can be configured using environment variables:
 - `HOST`: The host address to bind the server (default: `0.0.0.0`).
 - `PORT`: The port number to bind the server (default: `5000`).
 - `DEBUG`: Enable or disable debug mode (default: `False`).
+- `VISITS_FILE`: File path used by the visits counter (default: `/data/visits`).
 
 > You can set these environment variables in your terminal or use `.env` file for local development (see `.env.example`
 > file for reference).
