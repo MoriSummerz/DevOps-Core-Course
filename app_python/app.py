@@ -6,7 +6,7 @@ from config import settings
 from lifespan import lifespan
 from log_config import setup_json_logging
 from middleware import RequestLoggingMiddleware
-from routes import health_router, root_router
+from routes import health_router, root_router, visits_router
 
 setup_json_logging()
 
@@ -20,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(RequestLoggingMiddleware)
 
-for router in [root_router, health_router]:
+for router in [root_router, health_router, visits_router]:
     app.include_router(router)
 
 

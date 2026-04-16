@@ -16,6 +16,7 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.vault.enabled }}
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/role: {{ .Values.vault.role | quote }}
@@ -60,11 +61,36 @@ spec:
           {{- end }}
           env:
             {{- include "devops-info-service.envVars" . | nindent 12 }}
-          {{- if .Values.secrets }}
           envFrom:
+            {{- if .Values.configMapEnv }}
+            - configMapRef:
+                name: {{ include "devops-info-service.fullname" . }}-env
+            {{- end }}
+            {{- if .Values.secrets }}
             - secretRef:
                 name: {{ include "devops-info-service.fullname" . }}-secret
-          {{- end }}
+            {{- end }}
+          volumeMounts:
+            {{- if .Values.configFile.enabled }}
+            - name: config-volume
+              mountPath: {{ .Values.configFile.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.persistence.enabled }}
+            - name: data-volume
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+      volumes:
+        {{- if .Values.configFile.enabled }}
+        - name: config-volume
+          configMap:
+            name: {{ include "devops-info-service.fullname" . }}-config
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: {{ include "devops-info-service.fullname" . }}-data
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

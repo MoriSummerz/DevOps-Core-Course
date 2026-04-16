@@ -1,0 +1,16 @@
+{
+  "application": {
+    "name": "devops-info-service",
+    "environment": "dev",
+    "owner": "MoriSummerz"
+  },
+  "features": {
+    "visits_counter": true,
+    "metrics_endpoint": true,
+    "debug_routes": false
+  },
+  "limits": {
+    "max_request_body_bytes": 1048576,
+    "request_timeout_seconds": 30
+  }
+}
