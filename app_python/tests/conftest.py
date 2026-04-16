@@ -9,9 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Point the visits counter at a writable temp location before app import
-os.environ.setdefault(
-    "VISITS_FILE", str(Path(tempfile.gettempdir()) / "visits-test")
-)
+os.environ.setdefault("VISITS_FILE", str(Path(tempfile.gettempdir()) / "visits-test"))
 
 import pytest
 from fastapi.testclient import TestClient
