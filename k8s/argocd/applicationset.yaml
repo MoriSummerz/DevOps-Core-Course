@@ -1,0 +1,55 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: python-app-set
+  namespace: argocd
+spec:
+  # Apply the existing Application CRs rather than ignoring them.
+  goTemplate: true
+  goTemplateOptions:
+    - missingkey=error
+  generators:
+    - list:
+        elements:
+          - env: dev
+            namespace: dev
+            valuesFile: values-dev.yaml
+            autoSync: "true"
+          - env: prod
+            namespace: prod
+            valuesFile: values-prod.yaml
+            autoSync: "false"
+  template:
+    metadata:
+      name: 'python-app-set-{{ .env }}'
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/MoriSummerz/DevOps-Core-Course.git
+        targetRevision: lab13
+        path: k8s/devops-info-service
+        helm:
+          valueFiles:
+            - '{{ .valuesFile }}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{ .namespace }}'
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+  # Per-environment automated sync is configured via templatePatch so that
+  # only dev elements get the `automated` block; prod stays manual.
+  templatePatch: |
+    spec:
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
+        {{- if eq .autoSync "true" }}
+        automated:
+          prune: true
+          selfHeal: true
+        {{- end }}
