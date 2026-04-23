@@ -23,4 +23,3 @@ spec:
     # surfaces drift and out-of-sync status, but never auto-applies.
     syncOptions:
       - CreateNamespace=true
-      - ServerSideApply=true

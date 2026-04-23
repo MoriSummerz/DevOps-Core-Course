@@ -39,7 +39,6 @@ spec:
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
-          - ServerSideApply=true
   # Per-environment automated sync is configured via templatePatch so that
   # only dev elements get the `automated` block; prod stays manual.
   templatePatch: |
@@ -47,7 +46,6 @@ spec:
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
-          - ServerSideApply=true
         {{- if eq .autoSync "true" }}
         automated:
           prune: true
