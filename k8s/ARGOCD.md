@@ -73,9 +73,7 @@ argocd login localhost:8080 --username admin --password <password> --insecure
 # 'admin:login' logged in successfully
 ```
 
-> **Screenshot placeholder:** `screenshots/argocd-login.png` — ArgoCD UI login page and
-> the first view of the Applications grid immediately after install (empty state).
-
+![argocd-login.png](screenshots/argocd-login.png)
 ---
 
 ## 2. Application Configuration
@@ -193,10 +191,7 @@ $ kubectl get pods -n prod
 python-app-prod-devops-info-service-... 1/1 Running   (× 5)
 ```
 
-> **Screenshot placeholder:** `screenshots/argocd-multi-env.png` — ArgoCD Applications
-> tiles showing `python-app-dev` (Auto-Sync) and `python-app-prod` (Manual) side by
-> side, both `Synced / Healthy`.
-
+![argocd-dashboard.png](screenshots/argocd-dashboard.png)
 ---
 
 ## 4. Self-Healing & Sync Policies
@@ -280,10 +275,7 @@ Deployment matching Git.
 - **Refresh** — `argocd app get --refresh` forces a single comparison without waiting
   for the poll.
 
-> **Screenshot placeholder:** `screenshots/argocd-selfheal-diff.png` — ArgoCD diff view
-> immediately after `kubectl scale`, showing the OutOfSync banner and the live-vs-desired
-> `spec.replicas` diff that triggers self-heal.
-
+![argocd-diff.png](screenshots/argocd-diff.png)
 ---
 
 ## 5. Bonus — ApplicationSet
@@ -363,9 +355,7 @@ argocd/python-app-set-prod   prod       Synced  Healthy  Manual
 - `matrix` — combine generators, e.g. `list × cluster` for per-env-per-cluster apps.
 - `pullRequest` — ephemeral preview environments per open PR.
 
-> **Screenshot placeholder:** `screenshots/argocd-applicationset.png` — ArgoCD UI
-> showing the `python-app-set` ApplicationSet and both generated child Applications
-> (`python-app-set-dev`, `python-app-set-prod`).
+![img.png](screenshots/argocd-applicationset.png)
 
 ---
 

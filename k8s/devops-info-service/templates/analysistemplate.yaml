@@ -1,0 +1,19 @@
+{{- if and .Values.rollout.enabled .Values.rollout.analysis.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ .Release.Name }}-success-rate
+  labels:
+    {{- include "devops-info-service.labels" . | nindent 4 }}
+spec:
+  metrics:
+    - name: webcheck
+      provider:
+        web:
+          url: http://{{ include "devops-info-service.fullname" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }}{{ .Values.rollout.analysis.path | default "/health/" }}
+          jsonPath: "{{ .Values.rollout.analysis.jsonPath | default "{$.status}" }}"
+      successCondition: {{ .Values.rollout.analysis.successCondition | quote }}
+      interval: {{ .Values.rollout.analysis.interval | default "10s" }}
+      count: {{ .Values.rollout.analysis.count | default 3 }}
+      failureLimit: {{ .Values.rollout.analysis.failureLimit | default 1 }}
+{{- end }}
