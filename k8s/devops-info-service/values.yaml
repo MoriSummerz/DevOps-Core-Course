@@ -23,12 +23,57 @@ service:
   targetPort: 5000
   nodePort: 30080
 
-# Rolling update strategy
+# Rolling update strategy (used only when rollout.enabled=false → Deployment)
 strategy:
   type: RollingUpdate
   rollingUpdate:
     maxSurge: 1
     maxUnavailable: 0
+
+# Argo Rollouts configuration. When enabled=true the chart renders a Rollout
+# CRD instead of a Deployment, supporting canary or blueGreen strategies.
+rollout:
+  enabled: true
+  # Strategy: "canary" | "blueGreen"
+  strategy: canary
+
+  # Canary strategy (Lab 14, Task 2):
+  # 20% → manual pause → 40% → 30s → 60% → 30s → 80% → 30s → 100%
+  canary:
+    steps:
+      - setWeight: 20
+      - pause: {}
+      - setWeight: 40
+      - pause:
+          duration: 30s
+      - setWeight: 60
+      - pause:
+          duration: 30s
+      - setWeight: 80
+      - pause:
+          duration: 30s
+      - setWeight: 100
+
+  # Blue-Green strategy (Lab 14, Task 3): see values-bluegreen.yaml
+  blueGreen:
+    autoPromotionEnabled: false
+    # autoPromotionSeconds: 30
+    scaleDownDelaySeconds: 30
+    previewService:
+      type: ClusterIP
+      # nodePort: 30081  # only when type=NodePort
+
+  # Bonus: AnalysisTemplate driven web check on /health/.
+  # Override via values-canary-analysis.yaml to add an `analysis` step
+  # to canary.steps and flip enabled=true.
+  analysis:
+    enabled: false
+    path: /health/
+    jsonPath: "{$.status}"
+    successCondition: 'result == "ok"'
+    interval: 10s
+    count: 3
+    failureLimit: 1
 
 # Resource requests and limits
 resources:

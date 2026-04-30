@@ -1,0 +1,25 @@
+# Override values for blue-green deployment strategy (Lab 14, Task 3).
+# Apply with:
+#   helm upgrade --install python-app k8s/devops-info-service \
+#       -f k8s/devops-info-service/values.yaml \
+#       -f k8s/devops-info-service/values-bluegreen.yaml
+
+replicaCount: 2
+
+# Disable persistence for blue-green: a RWO PVC cannot be shared by two
+# ReplicaSets that exist simultaneously during the green stage.
+persistence:
+  enabled: false
+
+rollout:
+  enabled: true
+  strategy: blueGreen
+  blueGreen:
+    # Manual promotion: green stays in preview until `kubectl argo rollouts promote`.
+    autoPromotionEnabled: false
+    # Keep the old (blue) ReplicaSet around for 30s after promotion so rollback
+    # is instant — Argo Rollouts just flips the active Service selector back.
+    scaleDownDelaySeconds: 30
+    previewService:
+      type: NodePort
+      nodePort: 30081

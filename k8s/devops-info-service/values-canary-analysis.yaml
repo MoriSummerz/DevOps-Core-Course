@@ -1,0 +1,33 @@
+# Override values for canary deployment with automated metric analysis
+# (Lab 14, Bonus task — AnalysisTemplate).
+# Apply with:
+#   helm upgrade --install python-app k8s/devops-info-service \
+#       -f k8s/devops-info-service/values.yaml \
+#       -f k8s/devops-info-service/values-canary-analysis.yaml
+
+rollout:
+  enabled: true
+  strategy: canary
+
+  # Inject an `analysis` step after the first traffic shift. If the
+  # AnalysisTemplate fails (failureLimit hit), the rollout aborts and
+  # traffic shifts back to the stable ReplicaSet automatically.
+  canary:
+    steps:
+      - setWeight: 20
+      - analysis:
+          templates:
+            - templateName: python-app-success-rate
+      - setWeight: 50
+      - pause:
+          duration: 30s
+      - setWeight: 100
+
+  analysis:
+    enabled: true
+    path: /health/
+    jsonPath: "{$.status}"
+    successCondition: 'result == "ok"'
+    interval: 10s
+    count: 3
+    failureLimit: 1
