@@ -30,6 +30,23 @@ strategy:
     maxSurge: 1
     maxUnavailable: 0
 
+# StatefulSet configuration (Lab 15). When enabled=true the chart renders
+# a StatefulSet with per-pod PVCs (via volumeClaimTemplates) instead of
+# a Deployment/Rollout sharing a single PVC. Stateful workloads get
+# stable network identities, ordered scaling, and per-pod storage.
+statefulset:
+  enabled: false
+  # OrderedReady (default): pods come up 0 → 1 → 2 sequentially.
+  # Parallel: all pods come up at once (faster, no ordering guarantees).
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    # RollingUpdate: pods updated highest-ordinal first, respecting partition.
+    # OnDelete: pods only update when manually deleted.
+    type: RollingUpdate
+    # Pods with ordinal < partition are NOT updated. Use to canary the
+    # highest-ordinal pods (e.g. partition=2 with 3 replicas updates only pod-2).
+    partition: 0
+
 # Argo Rollouts configuration. When enabled=true the chart renders a Rollout
 # CRD instead of a Deployment, supporting canary or blueGreen strategies.
 rollout:
