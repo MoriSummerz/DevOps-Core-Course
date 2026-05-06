@@ -1,0 +1,56 @@
+# Lab 15 — StatefulSet values override.
+#
+# Deploys the app as a StatefulSet with 3 replicas, each backed by its own
+# 100Mi PVC carved out of volumeClaimTemplates. Pairs with a headless
+# Service (clusterIP: None) so each pod is individually DNS-addressable as
+# <fullname>-<ordinal>.<fullname>-headless.<namespace>.svc.cluster.local.
+
+replicaCount: 3
+
+image:
+  repository: morisummerz/devops-info-service
+  tag: "latest"
+  pullPolicy: Never
+
+statefulset:
+  enabled: true
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+    partition: 0
+
+# Disable Rollout so the chart renders the StatefulSet only.
+rollout:
+  enabled: false
+
+# Per-pod PVC carved from volumeClaimTemplates.
+persistence:
+  enabled: true
+  mountPath: /data
+  size: 100Mi
+  accessMode: ReadWriteOnce
+  storageClass: ""
+
+env:
+  - name: HOST
+    value: "0.0.0.0"
+  - name: PORT
+    value: "5000"
+  - name: DEBUG
+    value: "false"
+  - name: VISITS_FILE
+    value: "/data/visits"
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 5000
+  nodePort: 30080
