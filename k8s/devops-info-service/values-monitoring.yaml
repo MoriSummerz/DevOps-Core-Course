@@ -1,0 +1,14 @@
+# Lab 16 bonus overlay: enable the ServiceMonitor so kube-prometheus-stack
+# scrapes the app's /metrics endpoint.
+#
+# Usage:
+#   helm upgrade --install dev k8s/devops-info-service \
+#     -f k8s/devops-info-service/values-dev.yaml \
+#     -f k8s/devops-info-service/values-monitoring.yaml
+monitoring:
+  serviceMonitor:
+    enabled: true
+    releaseLabel: monitoring
+    path: /metrics
+    interval: 15s
+    scrapeTimeout: 10s
