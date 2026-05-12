@@ -171,6 +171,22 @@ serviceAccount:
   create: true
   name: ""
 
+# Prometheus Operator integration (Lab 16 bonus). When enabled=true the chart
+# renders a ServiceMonitor that tells Prometheus to scrape the app's /metrics
+# endpoint via the existing Service. The `release: monitoring` label must
+# match the kube-prometheus-stack release name so the operator picks it up.
+monitoring:
+  serviceMonitor:
+    enabled: false
+    # Label that ties the ServiceMonitor to a kube-prometheus-stack release.
+    # Must equal the helm release name used to install the stack.
+    releaseLabel: monitoring
+    path: /metrics
+    interval: 30s
+    scrapeTimeout: 10s
+    # Empty → render in the chart's release namespace.
+    namespace: ""
+
 # Pod labels and annotations
 podAnnotations: {}
 podLabels: {}
