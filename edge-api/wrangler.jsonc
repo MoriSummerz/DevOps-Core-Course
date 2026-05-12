@@ -1,0 +1,32 @@
+/**
+ * Cloudflare Workers configuration for edge-api (Lab 17).
+ *
+ * After creating a KV namespace with:
+ *   npx wrangler kv namespace create SETTINGS
+ * paste the returned id below in `kv_namespaces[0].id`.
+ *
+ * Secrets are NOT stored here — set them with:
+ *   npx wrangler secret put API_TOKEN
+ *   npx wrangler secret put ADMIN_EMAIL
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "edge-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "APP_NAME": "edge-api",
+    "COURSE_NAME": "devops-core",
+    "ENVIRONMENT": "production"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "SETTINGS",
+      "id": "58a6f9f3db6442a98823927f693ea868"
+    }
+  ]
+}
