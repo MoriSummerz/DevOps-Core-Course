@@ -344,6 +344,8 @@ $ curl -s http://localhost:5050/ | jq .
 }
 ```
 
+![img.png](lab18/screenshots/nix-app-running.png)
+
 Same Python 3.13.12 as the dev shell (§Bonus.4) and the Docker image (§2.3)
 — that's the whole point of pinning.
 
